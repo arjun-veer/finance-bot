@@ -1,0 +1,36 @@
+# Python-related
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.env
+*.venv
+# Virtual environments
+venv/etc
+venv/include
+venv/Library
+venv/libs
+venv/Scripts
+venv/share
+venv/Tools
+venv/
+env/
+venv
+# Streamlit cache
+.streamlit/
+
+# FAISS index files
+*.faiss
+*.pkl
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*.bak
+*.old
+*.orig
