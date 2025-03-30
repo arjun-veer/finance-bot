@@ -17,10 +17,11 @@ genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 # genai.configure(model="gemini-2.5-pro-exp-03-25")
 
 def get_pdf_text(pdf_docs):
-    pdf_reader = PdfReader(pdf_docs)
     text = ""
-    for page in pdf_reader.pages:
-        text += page.extract_text()
+    for pdf_file in pdf_docs:  # Iterate over the list of uploaded files
+        pdf_reader = PdfReader(pdf_file)
+        for page in pdf_reader.pages:
+            text += page.extract_text()
     return text
 
 def get_text_chunks(text):
@@ -61,13 +62,13 @@ def get_conversational_chain():
     return chain
 
 def user_input(user_question):
-    embeddings = GoogleGenerativeAIEmbeddings(model = "models/embedding-001")
+    embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
     
-    new_db = FAISS.load_local("faiss_index", embeddings)
+    new_db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)  # Allow deserialization
     docs = new_db.similarity_search(user_question)
     chain = get_conversational_chain()
 
-    resposne =chain({
+    resposne = chain({
         "input_documents": docs,
         "question": user_question
     }, return_only_outputs=True)
@@ -88,11 +89,14 @@ def main():
         st.title("Menu:")
         pdf_docs = st.file_uploader("Upload your PDF Files and Click on the Submit & Process Button", accept_multiple_files=True)
         if st.button("Submit & Process"):
-            with st.spinner("Processing..."):
-                raw_text = get_pdf_text(pdf_docs)
-                text_chunks = get_text_chunks(raw_text)
-                get_vector_store(text_chunks)
-                st.success("Done")
+            if pdf_docs:  # Ensure files are uploaded
+                with st.spinner("Processing..."):
+                    raw_text = get_pdf_text(pdf_docs)  # Pass the list of files
+                    text_chunks = get_text_chunks(raw_text)
+                    get_vector_store(text_chunks)
+                    st.success("Done")
+            else:
+                st.error("Please upload at least one PDF file.")
 
 
 
