@@ -1,14 +1,15 @@
 import streamlit as st
 from PyPDF2 import PdfReader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain.vectorstores import FAISS
-import google.generativeai as genai
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains.question_answering import load_qa_chain
 from langchain.prompts import PromptTemplate
+
 from dotenv import load_dotenv
+import google.generativeai as genai
 import os
 
 load_dotenv()
@@ -37,12 +38,11 @@ def get_vector_store(chunks):
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
     vector_store = FAISS.from_texts(chunks, embeddings)
     vector_store.save_local("faiss_index")
-    # return vector_store
+    # return vector_store 
 
 def get_conversational_chain():
     prompt_template = """
-    Answer the question as detailed as possible from the provided context, make sure to provide all the details, if the answer is not in
-    provided context just say, "answer is not available in the context", don't provide the wrong answer\n\n
+    Answer the question as detailed as possible from the provided context, give small answer in general which are outof pdf also, if the answer is not related to finance then  just say, "ask question related to finance", don't provide the wrong answer\n\n
     Context:\n {context}?\n
     Question: \n{question}\n
 
@@ -78,9 +78,9 @@ def user_input(user_question):
     
 def main():
     st.set_page_config("Chat PDF")
-    st.header("Chat with PDF using Gemini💁")
+    st.header("Finance Chatbot💁")
 
-    user_question = st.text_input("Ask a Question from the PDF Files")
+    user_question = st.text_input("Ask your financial doubt here:")
 
     if user_question:
         user_input(user_question)
@@ -97,8 +97,6 @@ def main():
                     st.success("Done")
             else:
                 st.error("Please upload at least one PDF file.")
-
-
 
 if __name__ == "__main__":
     main()
